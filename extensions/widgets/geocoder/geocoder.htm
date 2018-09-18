@@ -1,0 +1,24 @@
+{% extends "views/components/widgets/base.htm" %}
+{% load i18n %}
+
+{% block form %}
+<div class="row widget-wrapper">
+    <div class="form-group">
+        <label class="control-label widget-input-label" for="" data-bind="text:label"></label>
+        <div class="col-xs-12">
+            <input style="padding-bottom: 5px;" data-bind="value: placeName, select2Query: {select2Config: select2Config}">
+        </div>
+    </div>
+</div>
+{% endblock form %}
+
+{% block config_form %}
+
+{% endblock config_form %}
+
+{% block report %}
+<dt data-bind="text: label"></dt>
+<dd>
+  <div style='margin-bottom:2px' data-bind="text: value"></div>
+</dd>
+{% endblock report %}

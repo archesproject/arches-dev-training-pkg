@@ -1,0 +1,7 @@
+{
+    "name": "geocoder",
+    "component": "views/components/widgets/geocoder",
+    "defaultconfig": {},
+    "helptext": null,
+    "datatype": "address"
+}
