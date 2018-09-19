@@ -23,7 +23,7 @@ class AddressDataType(BaseDataType):
     def validate(self, value, source=None):
         errors = []
         try:
-            value['placeName']
+            value['address']
             value['x']
             value['y']
         except KeyError:
@@ -41,12 +41,8 @@ class AddressDataType(BaseDataType):
         return errors
 
     def append_to_document(self, document, nodevalue, nodeid, tile):
-        document['strings'].append({'string': nodevalue['placeName'], 'nodegroup_id': tile.nodegroup_id})
-
-    def transform_export_values(self, value, *args, **kwargs):
-        if value is not None:
-            return value
+        document['strings'].append({'string': nodevalue['address'], 'nodegroup_id': tile.nodegroup_id})
 
     def get_search_terms(self, nodevalue, nodeid=None):
-        terms = [nodevalue['placeName']]
+        terms = [nodevalue['address']]
         return terms

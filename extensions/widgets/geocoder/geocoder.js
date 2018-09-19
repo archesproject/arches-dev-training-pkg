@@ -1,53 +1,60 @@
 define([
+    'jquery',
     'knockout',
     'viewmodels/widget',
     'arches',
     'bindings/select2-query'
-], function (ko, WidgetViewModel, arches) {
+], function ($, ko, WidgetViewModel, arches) {
     return ko.components.register('geocoder', {
         viewModel: function(params) {
             var self = this;
-            this.valueProperties = ['placeName','x','y']
+            var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/';
+            
+            params.valueProperties = ['address','x','y'];
+            params.configKeys = ['placeholder'];
+            
             WidgetViewModel.apply(this, [params]);
                         
             this.select2Config = {
-                value: this.placeName,
+                value: this.address,
+                placeholder: this.placeholder,
+                minimumInputLength: 3,
                 query: function (query) {
-                    if (query.term.length < 3) {
-                        query.callback({results: []});
-                        return;
-                    }
-                    var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
-                        query.term + '.json';
-                    $.getJSON(url, {
+                    $.getJSON(url + query.term + '.json', {
                         access_token: arches.mapboxApiKey,
                         types: 'address',
                         limit: 10
                     }, function (data) {
-                        query.callback({results: data.features});
+                        query.callback({
+                            results: data.features.map(function(feature) {
+                                return {
+                                    id: feature['place_name'],
+                                    text: feature['place_name'],
+                                    x: feature['center'][0],
+                                    y: feature['center'][1]
+                                }
+                            })
+                        });
                     });
                 },
                 initSelection: function(element, callback) {
+                    var address = self.address();
                     callback({
-                        place_name: self.placeName(),
-                        center: [
-                            self.x(),
-                            self.y()
-                        ]
+                        id: address,
+                        text: address,
+                        x: self.x(),
+                        y: self.y()
                     });
                 },
-                id: function(selection) {
-                    return selection.place_name;
-                },
-                formatResult: function(selection) {
-                    return selection.place_name;
-                },
-                formatSelection: function(selection) {
-                    self.x(selection.center[0]);
-                    self.y(selection.center[1]);
-                    return selection.place_name;
+                onSelect: function(selection) {
+                    self.x(selection.x);
+                    self.y(selection.y);
                 }
             };
+            
+            this.displayValue = ko.computed(function() {
+                return self.address();
+            });
         },
         template: {
             require: 'text!templates/views/components/widgets/geocoder.htm'
