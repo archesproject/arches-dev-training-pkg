@@ -1,28 +1,38 @@
 define([
     'knockout',
-    'viewmodels/widget'
-], function (ko, WidgetViewModel) {
+    'viewmodels/widget',
+    'arches'
+], function (ko, WidgetViewModel, arches) {
     return ko.components.register('geocoder', {
         viewModel: function(params) {
             var self = this;
-            params.configKeys = [];
             WidgetViewModel.apply(this, [params]);
+            
             if (ko.isObservable(this.value)){
                 this.placeName = ko.observable();
                 this.x = ko.observable();
                 this.y = ko.observable();
+                this.placeName.subscribe(function() {
+                        this.value({
+                            placeName: this.placeName(),
+                            x: this.x(),
+                            y: this.y()
+                        });
+                }, this);
             } else {
-                var value = ko.unwrap(this.value)
-                this.placeName = value.placeName;
-                this.x = value.x;
-                this.y = value.y;
+                this.placeName = this.value.placeName;
+                this.x = this.value.x;
+                this.y = this.value.y;
             }
                         
             var getAddressData = function(term, callback) {
-                var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/';
-                url += term;
-                url += '.json?access_token=pk.eyJ1Ijoicmdhc3RvbiIsImEiOiJJYTdoRWNJIn0.MN6DrT07IEKXadCU8xpUMg&types=address';
-                $.getJSON(url, function (data) {
+                var url = 'https://api.mapbox.com/geocoding/v5/mapbox.places/' +
+                    term + '.json';
+                $.getJSON(url, {
+                    access_token: arches.mapboxApiKey,
+                    types: 'address',
+                    limit: 10
+                }, function (data) {
                     callback(data);
                 });
             };
@@ -35,15 +45,11 @@ define([
                 allowClear: true,
                 query: function (query) {
                     if (query.term.length < 3) {
-                        query.callback({
-                            results: []
-                        });
+                        query.callback({results: []});
                         return;
                     }
                     getAddressData(query.term, function (data) {
-                        query.callback({
-                            results: data.features
-                        });
+                        query.callback({results: data.features});
                     });
                 },
                 initSelection: function(element, callback) {
@@ -65,17 +71,9 @@ define([
                     return selection.place_name;
                 }
             };
-            
-            this.placeName.subscribe(function() {
-                if (ko.isObservable(this.value)) {
-                    this.value({
-                        placeName: this.placeName(),
-                        x: this.x(),
-                        y: this.y()
-                    });
-                }
-            }, this);
         },
-        template: { require: 'text!templates/views/components/widgets/geocoder.htm' }
+        template: {
+            require: 'text!templates/views/components/widgets/geocoder.htm'
+        }
     });
 });
