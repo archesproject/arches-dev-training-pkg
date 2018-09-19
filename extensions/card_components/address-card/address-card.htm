@@ -1,0 +1,16 @@
+{% extends "views/components/cards/default.htm" %}
+{% load i18n %}
+
+{% block form_header %}
+    {{ block.super }}
+    <div class="address-card-map" data-bind="mapboxgl: {
+            mapOptions: {
+                style: 'mapbox://styles/mapbox/streets-v9'
+            },
+            afterRender: setupMap
+        }"></div>
+{% endblock form_header %}
+
+{% block config %}
+    <div>card form here...</div>
+{% endblock config %}
