@@ -8,6 +8,7 @@ define([
         viewModel: function(params) {
             var self = this;
             CardComponentViewModel.apply(this, [params]);
+            
             this.fc = ko.computed(function() {
                 var fc = {
                     type: 'FeatureCollection',
