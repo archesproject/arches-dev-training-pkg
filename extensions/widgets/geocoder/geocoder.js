@@ -49,6 +49,10 @@ define([
                 onSelect: function(selection) {
                     self.x(selection.x);
                     self.y(selection.y);
+                },
+                onClear: function() {
+                    self.x(null);
+                    self.y(null);
                 }
             };
             

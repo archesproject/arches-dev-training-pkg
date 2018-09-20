@@ -15,7 +15,7 @@ define([
                     features: []
                 };
                 _.each(self.getValuesByDatatype('address'), function(data, id) {
-                    if (data.value) {
+                    if (data.value && data.value.address) {
                         fc.features.push({
                             id: id,
                             properties: {
