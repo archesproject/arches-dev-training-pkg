@@ -1,0 +1,9 @@
+{
+    "name": "Address Report",
+    "description": "",
+    "component": "views/components/reports/address-report",
+    "componentname": "address-report",
+    "defaultconfig": {
+        "icon": "star-15"
+    }
+}

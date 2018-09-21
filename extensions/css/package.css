@@ -1,5 +1,7 @@
-.address-card-map {
+.address-card-map, .address-report-map {
     height: 300px;
     border: solid #808080 1px;
+}
+.address-card-map {
     border-radius: 5px;
 }
