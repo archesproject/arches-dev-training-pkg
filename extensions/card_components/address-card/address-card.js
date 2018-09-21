@@ -2,9 +2,10 @@ define([
     'knockout',
     'underscore',
     'mapbox-gl',
+    'geojson-extent',
     'viewmodels/card-component',
     'bindings/mapbox-gl'
-], function(ko, _, mapboxgl, CardComponentViewModel) {
+], function(ko, _, mapboxgl, geojsonExtent, CardComponentViewModel) {
     return ko.components.register('address-card', {
         viewModel: function(params) {
             var self = this;
@@ -35,18 +36,11 @@ define([
             
             this.setupMap = function(map) {
                 map.on('load', function () {
-                    var zoomToGeoJSON = function () {
-                        var features = self.geoJSON().features;
-                        if (features.length > 0) {
-                            var bounds = features.reduce(function(bounds, feature) {
-                                return bounds.extend(feature.geometry.coordinates);
-                            }, new mapboxgl.LngLatBounds(
-                                features[0].geometry.coordinates,
-                                features[0].geometry.coordinates
-                            ));
-                            
-                            map.fitBounds(bounds, {
-                                padding: 20,
+                    var geoJSON = self.geoJSON();
+                    var zoomToGeoJSON = function (geoJSON) {
+                        if (geoJSON.features.length > 0) {
+                            map.fitBounds(geojsonExtent(geoJSON), {
+                                padding: 100,
                                 maxZoom: 15
                             });
                         }
@@ -54,27 +48,27 @@ define([
                     
                     map.addSource('address-points', {
                         'type': 'geojson',
-                        'data': self.geoJSON()
+                        'data': geoJSON
                     });
                     map.addLayer({
                         'id': 'address-points',
                         'source': 'address-points',
                         'type': 'symbol',
                         'layout': {
-                            'icon-image': self.card.model.get('config').icon(),
+                            'icon-image': self.config.icon(),
                             'text-field': '{name}: {address}',
                             'text-offset': [0, 0.6],
                             'text-anchor': 'top'
                         }
                     });
-                    zoomToGeoJSON();
+                    zoomToGeoJSON(geoJSON);
                     
                     self.geoJSON.subscribe(function(geoJSON) {
                         map.getSource('address-points').setData(geoJSON);
-                        zoomToGeoJSON();
+                        zoomToGeoJSON(geoJSON);
                     });
                     
-                    self.card.model.get('config').icon.subscribe(function(icon) {
+                    self.config.icon.subscribe(function(icon) {
                         map.setLayoutProperty('address-points', 'icon-image', icon);
                     });
                 });
