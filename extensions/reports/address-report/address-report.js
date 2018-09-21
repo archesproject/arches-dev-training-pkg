@@ -39,19 +39,25 @@ define([
                 };
                 ko.unwrap(self.tiles).forEach(function(tile) {
                     _.each(tile.data, function(value) {
-                        if (value && value.address && value.x && value.y) {
-                            geoJSON.features.push({
-                                'properties': {
-                                    'address': ko.unwrap(value.address)
-                                },
-                                'geometry': {
-                                    'type': 'Point',
-                                    'coordinates': [
-                                        ko.unwrap(value.x), 
-                                        ko.unwrap(value.y)
-                                    ]
-                                }
-                            })
+                        value = ko.unwrap(value);
+                        if (value) {
+                            var address = ko.unwrap(value.address);
+                            var x = ko.unwrap(value.x);
+                            var y = ko.unwrap(value.y);
+                            if (address && x && y) {
+                                geoJSON.features.push({
+                                    'properties': {
+                                        'address': address
+                                    },
+                                    'geometry': {
+                                        'type': 'Point',
+                                        'coordinates': [
+                                            x, 
+                                            y
+                                        ]
+                                    }
+                                })
+                            }
                         }
                     }, this);
                 }, this);
