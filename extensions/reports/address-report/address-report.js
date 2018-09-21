@@ -12,25 +12,6 @@ define([
             params.configKeys = ['icon'];
             
             ReportViewModel.apply(this, [params]);
-            this.featureCollection = ko.computed({
-                read: function() {
-                    var features = [];
-                    ko.unwrap(self.tiles).forEach(function(tile) {
-                        _.each(tile.data, function(val) {
-                            if ('features' in val) {
-                                features = features.concat(koMapping.toJS(val.features));
-                            }
-                        }, this);
-                    }, this);
-                    return {
-                        type: 'FeatureCollection',
-                        features: features
-                    };
-                },
-                write: function() {
-                    return;
-                }
-            });
             
             this.geoJSON = ko.computed(function() {
                 var geoJSON = {
