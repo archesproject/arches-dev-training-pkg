@@ -4,6 +4,6 @@
     "component": "views/components/card_components/address-card",
     "componentname": "address-card",
     "defaultconfig": {
-        "basemap": ""
+        "icon": "star-15"
     }
 }
