@@ -1,11 +1,12 @@
 define([
     'knockout',
+    'knockout-mapping',
     'underscore',
     'mapbox-gl',
     'geojson-extent',
     'viewmodels/report',
     'bindings/mapbox-gl'
-], function(ko, _, mapboxgl, geojsonExtent, ReportViewModel) {
+], function(ko, koMapping, _, mapboxgl, geojsonExtent, ReportViewModel) {
     return ko.components.register('address-report', {
         viewModel: function(params) {
             var self = this;
@@ -19,29 +20,20 @@ define([
                     'features': []
                 };
                 ko.unwrap(self.tiles).forEach(function(tile) {
-                    _.each(tile.data, function(value) {
-                        value = ko.unwrap(value);
-                        if (value) {
-                            var address = ko.unwrap(value.address);
-                            var x = ko.unwrap(value.x);
-                            var y = ko.unwrap(value.y);
-                            if (address && x && y) {
-                                geoJSON.features.push({
-                                    'properties': {
-                                        'address': address
-                                    },
-                                    'geometry': {
-                                        'type': 'Point',
-                                        'coordinates': [
-                                            x, 
-                                            y
-                                        ]
-                                    }
-                                })
-                            }
+                    _.each(koMapping.toJS(tile.data), function(value) {
+                        if (value && value.address && value.x && value.y) {
+                            geoJSON.features.push({
+                                'properties': {
+                                    'address': value.address
+                                },
+                                'geometry': {
+                                    'type': 'Point',
+                                    'coordinates': [value.x, value.y]
+                                }
+                            });
                         }
-                    }, this);
-                }, this);
+                    });
+                });
                 return geoJSON;
             });
             

@@ -1,14 +1,17 @@
 define([
     'knockout',
+    'knockout-mapping',
     'underscore',
     'mapbox-gl',
     'geojson-extent',
     'viewmodels/card-component',
     'bindings/mapbox-gl'
-], function(ko, _, mapboxgl, geojsonExtent, CardComponentViewModel) {
+], function(ko, koMapping, _, mapboxgl, geojsonExtent, CardComponentViewModel) {
     return ko.components.register('address-card', {
         viewModel: function(params) {
             var self = this;
+            params.configKeys = ['icon'];
+            
             CardComponentViewModel.apply(this, [params]);
             
             this.geoJSON = ko.computed(function() {
@@ -16,21 +19,21 @@ define([
                     'type': 'FeatureCollection',
                     'features': []
                 };
-                _.each(self.getValuesByDatatype('address'), function(data) {
-                    var value = data.value;
-                    if (value && value.address && value.x && value.y) {
-                        geoJSON.features.push({
-                            'properties': {
-                                'name': data.name,
-                                'address': value.address
-                            },
-                            'geometry': {
-                                'type': 'Point',
-                                'coordinates': [value.x, value.y]
-                            }
-                        })
-                    }
-                });
+                if (self.tile) {
+                    _.each(koMapping.toJS(self.tile.data), function(value) {
+                        if (value && value.address && value.x && value.y) {
+                            geoJSON.features.push({
+                                'properties': {
+                                    'address': value.address
+                                },
+                                'geometry': {
+                                    'type': 'Point',
+                                    'coordinates': [value.x, value.y]
+                                }
+                            });
+                        }
+                    });
+                }
                 return geoJSON;
             });
             
@@ -55,8 +58,8 @@ define([
                         'source': 'address-points',
                         'type': 'symbol',
                         'layout': {
-                            'icon-image': self.config.icon(),
-                            'text-field': '{name}: {address}',
+                            'icon-image': self.icon(),
+                            'text-field': '{address}',
                             'text-offset': [0, 0.6],
                             'text-anchor': 'top'
                         }
@@ -68,7 +71,7 @@ define([
                         zoomToGeoJSON(geoJSON);
                     });
                     
-                    self.config.icon.subscribe(function(icon) {
+                    self.icon.subscribe(function(icon) {
                         map.setLayoutProperty('address-points', 'icon-image', icon);
                     });
                 });
